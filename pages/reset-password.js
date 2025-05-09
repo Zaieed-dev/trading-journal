@@ -12,7 +12,7 @@ export default function ResetPassword() {
     setSuccess('');
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://journal-seven-psi.vercel.app/change-password', //
+      redirectTo: 'https://journal-two-delta.vercel.app/change-password', //
     });
 
     if (error) {
