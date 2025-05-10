@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function SignUp() {
   const router = useRouter();
-  
+
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState('');
   const [email, setEmail] = useState('');
@@ -17,7 +17,7 @@ export default function SignUp() {
   const validateEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   const validateName = (v) => {
     const trimmed = v.trim();
-    //if (!/^[a-zA-Z0-9_ ]+$/.test(trimmed)) return 'Name can only contain letters, numbers, spaces, and underscores.';
+    if (!/^[a-zA-Z0-9_ ]+$/.test(trimmed)) return 'Name can only contain letters, numbers, spaces, and underscores.';
     return '';
   };
 
@@ -36,21 +36,24 @@ export default function SignUp() {
     e.preventDefault();
     setError('');
     setSuccess('');
-  
+
     if (!validateEmail(email)) {
       setEmailError('Please enter a valid email');
       return;
     }
-  
-    // ✅ Call the RPC function to check for display_name uniqueness
+
+    const trimmedName = name.trim();
+
+    // ✅ Check if the name already exists using RPC
     const { data: nameExists, error: rpcError } = await supabase.rpc(
       'check_display_name_exists',
-      { name: name.trim() }
+      { name: trimmedName }
     );
-  
+    console.log(rpcError);
+    console.log(trimmedName);
+    console.log(nameExists);
     if (rpcError) {
-      setError('Something went wrong while checking the name.');
-      alert(nameExists);
+      setError('Error checking name uniqueness. Please try again later.');
       return;
     }
   
@@ -58,7 +61,7 @@ export default function SignUp() {
       setError('This name is already taken. Please choose a different one.');
       return;
     }
-  
+
     // ✅ Proceed with sign-up
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
@@ -69,7 +72,7 @@ export default function SignUp() {
         },
       },
     });
-  
+
     if (signUpError) {
       const msg = signUpError.message.toLowerCase();
       const exists = /already registered|duplicate|user already exists/.test(msg);
@@ -80,13 +83,13 @@ export default function SignUp() {
       }
     } else {
       if (data.user?.identities?.length === 0) {
-        setError('User already exists. Please log in instead.');
+        setError('Email already exists. Please log in instead.');
       } else {
         setSuccess('Sign‑up successful! Please check your email to confirm and then log in.');
       }
     }
   };
-  
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
@@ -107,9 +110,8 @@ export default function SignUp() {
             value={name}
             onChange={e => setName(e.target.value)}
             aria-invalid={nameError ? 'true' : 'false'}
-            className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              nameError ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${nameError ? 'border-red-500' : 'border-gray-300'
+              }`}
             required
           />
           {nameError && <p className="mt-1 text-red-500 text-sm">{nameError}</p>}
@@ -126,9 +128,8 @@ export default function SignUp() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             aria-invalid={emailError ? 'true' : 'false'}
-            className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              emailError ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${emailError ? 'border-red-500' : 'border-gray-300'
+              }`}
             required
           />
           {emailError && <p className="mt-1 text-red-500 text-sm">{emailError}</p>}
