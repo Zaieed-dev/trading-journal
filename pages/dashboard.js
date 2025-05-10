@@ -63,20 +63,26 @@ import withAuth from '../utils/withAuth';
   // Save updated trade
   const saveEdit = async () => {
     setSaving(true);
-    const { id, date, asset, bias, outcome, rr } = editTrade;
+    let { id, date, asset, bias, outcome, rr } = editTrade;
+  
+    // Enforce RR sign based on outcome
+    if (outcome === 'Won' && rr < 0) rr = Math.abs(rr);
+    if (outcome === 'Lost' && rr > 0) rr = -rr;
+  
     const { error } = await supabase
       .from('trades')
       .update({ date, asset, bias, outcome, rr })
       .eq('id', id);
+  
     setSaving(false);
     if (error) {
       alert(error.message);
     } else {
-      // Refresh local state
-      setTrades(trades.map(t => t.id === id ? editTrade : t));
+      // Update local state
+      setTrades(trades.map(t => t.id === id ? { ...editTrade, rr } : t));
       setEditTrade(null);
     }
-  };
+  };  
 
   if (loading) return null;
 
@@ -194,9 +200,19 @@ import withAuth from '../utils/withAuth';
             </div>
 
             <label className="block mb-2 text-sm">R.R</label>
-            <input type="number" value={editTrade.rr}
-              onChange={e => onEditChange('rr', parseFloat(e.target.value))}
-              className="w-full p-2 border rounded mb-4" />
+            <input
+              type="text"
+              value={editTrade.rr}
+              onChange={e => {
+                const val = e.target.value;
+                // Allow only valid numbers and optional minus
+                if (/^-?\d*\.?\d*$/.test(val)) {
+                  onEditChange('rr', val === '' ? '' : parseFloat(val));
+                }
+              }}
+              className="w-full p-2 border rounded mb-4"
+            />
+
 
             <div className="flex justify-end space-x-4">
               <button onClick={() => setEditTrade(null)}
