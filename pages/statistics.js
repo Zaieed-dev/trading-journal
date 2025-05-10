@@ -35,7 +35,8 @@ function Statistics() {
   const gotoChangePassword= ()    => router.push('/change-password');
   const gotoJournal       = ()    => router.push('/journal-trade');
   const gotoDashboard     = ()    => router.push('/dashboard');
-  const gotoStats         = ()    => router.push('/statistics');
+  const gotoStats         = ()    => {};
+  const gotoChangeName    = ()    => router.push('/change-name');
 
   if (loading) return null;
 
@@ -61,9 +62,11 @@ function Statistics() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Navbar */}
-      <header className="bg-white shadow sticky top-0 z-10">
+      <header className="bg-white shadow sticky top-0 z-10 w-full">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-blue-600">Trading Journal</h1>
+          <h1 className="text-2xl font-semibold text-blue-600">
+            {user?.display_name ? `${user.display_name}'s Journal` : 'Trading Journal'}
+          </h1>
           <div className="relative">
             <button
               onClick={() => setMenuOpen(!menuOpen)}
@@ -73,11 +76,12 @@ function Statistics() {
               ☰
             </button>
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg overflow-hidden">
+              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg">
                 <button onClick={gotoDashboard} className="w-full px-4 py-2 hover:bg-gray-100">Dashboard</button>
                 <button onClick={gotoStats} className="w-full px-4 py-2 hover:bg-gray-100">Statistics</button>
                 <button onClick={gotoJournal} className="w-full px-4 py-2 hover:bg-gray-100">Journal Trade</button>
                 <button onClick={gotoChangePassword} className="w-full px-4 py-2 hover:bg-gray-100">Change Password</button>
+                <button onClick={gotoChangeName} className="w-full px-4 py-2 hover:bg-gray-100">Change Name</button>
                 <button onClick={logout} className="w-full px-4 py-2 hover:bg-gray-100">Logout</button>
               </div>
             )}
