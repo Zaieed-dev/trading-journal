@@ -17,7 +17,7 @@ export default function SignUp() {
   const validateEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   const validateName = (v) => {
     const trimmed = v.trim();
-    if (!/^[a-zA-Z0-9_ ]+$/.test(trimmed)) return 'Name can only contain letters, numbers, spaces, and underscores.';
+    //if (!/^[a-zA-Z0-9_ ]+$/.test(trimmed)) return 'Name can only contain letters, numbers, spaces, and underscores.';
     return '';
   };
 
@@ -73,7 +73,7 @@ export default function SignUp() {
       const msg = signUpError.message.toLowerCase();
       const exists = /already registered|duplicate|user already exists/.test(msg);
       if (exists) {
-        setError('User already exists. Please log in instead.');
+        setError('Email already exists. Please log in instead.');
       } else {
         setError(signUpError.message);
       }
