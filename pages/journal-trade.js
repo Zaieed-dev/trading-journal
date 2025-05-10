@@ -58,6 +58,10 @@ import withAuth from '../utils/withAuth';
         setError('A "Won" outcome cannot have a negative R.R value.');
         return false;
     }
+    if (isNaN(parseFloat(rr))) {
+      setError('R.R must be a valid number!');
+      return false;
+    }    
     return true;
   };
 
@@ -83,6 +87,7 @@ import withAuth from '../utils/withAuth';
     try {
       const chartUrl = await uploadFile(chart, 'charts');
       const executionUrl = await uploadFile(executionProof, 'executions');
+      const numericRr = parseFloat(rr);
 
       const { data, error } = await supabase
         .from('trades')
@@ -92,7 +97,7 @@ import withAuth from '../utils/withAuth';
             asset,
             bias,
             outcome,
-            rr,
+            rr: numericRr,
             chart_url: chartUrl,
             execution_proof_url: executionUrl,
             user_id: user.id,
@@ -140,16 +145,44 @@ import withAuth from '../utils/withAuth';
 
         <div>
           <label className="block text-lg font-medium mb-2" htmlFor="outcome">Outcome</label>
-          <select id="outcome" value={outcome} onChange={(e) => setOutcome(e.target.value)} className="w-full p-3 border rounded-md" required>
+          <select
+            id="outcome"
+            value={outcome}
+            onChange={(e) => {
+              const selectedOutcome = e.target.value;
+              setOutcome(selectedOutcome);
+
+              if (selectedOutcome === 'Lost' && rr && !rr.startsWith('-')) {
+                setRr('-' + rr);
+              } else if (selectedOutcome === 'Won' && rr.startsWith('-')) {
+                setRr(rr.substring(1)); // remove the minus for wins
+              }
+            }}
+            className="w-full p-3 border rounded-md"
+            required
+          >
             <option value="">Select Outcome</option>
             <option value="Won">Won</option>
             <option value="Lost">Lost</option>
           </select>
+
         </div>
 
         <div>
           <label className="block text-lg font-medium mb-2" htmlFor="rr">R.R</label>
-          <input type="number" id="rr" value={rr} onChange={(e) => setRr(e.target.value)} className="w-full p-3 border rounded-md" required />
+          <input
+            type="text"
+            id="rr"
+            value={rr}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (/^-?\d*\.?\d*$/.test(val)) {
+                setRr(val);
+              }
+            }}
+            className="w-full p-3 border rounded-md"
+            required
+          />
         </div>
 
         <div>
