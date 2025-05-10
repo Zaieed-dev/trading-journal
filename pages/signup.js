@@ -49,7 +49,7 @@ export default function SignUp() {
     );
   
     if (rpcError) {
-      console.error('RPC Error:', rpcError);
+      alert('RPC Error:', rpcError);
       setError('Something went wrong while checking the name.');
       return;
     }
