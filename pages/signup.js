@@ -7,19 +7,30 @@ export default function SignUp() {
   const router = useRouter();
   
   const [name, setName] = useState('');
-  const [email, setEmail]         = useState('');
+  const [nameError, setNameError] = useState('');
+  const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
-  const [password, setPassword]   = useState('');
-  const [error, setError]         = useState('');
-  const [success, setSuccess]     = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const validateEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  const validateName = (v) => {
+    const trimmed = v.trim();
+    if (!/^[a-zA-Z0-9_ ]+$/.test(trimmed)) return 'Name can only contain letters, numbers, spaces, and underscores.';
+    return '';
+  };
 
   useEffect(() => {
     if (!email) setEmailError('');
     else if (!validateEmail(email)) setEmailError('Invalid email address');
     else setEmailError('');
   }, [email]);
+
+  useEffect(() => {
+    const err = validateName(name);
+    setNameError(err);
+  }, [name]);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -31,12 +42,29 @@ export default function SignUp() {
       return;
     }
   
+    // ✅ Call the RPC function to check for display_name uniqueness
+    const { data: nameExists, error: rpcError } = await supabase.rpc(
+      'check_display_name_exists',
+      { name: name.trim() }
+    );
+  
+    if (rpcError) {
+      setError('Something went wrong while checking the name.');
+      return;
+    }
+  
+    if (nameExists) {
+      setError('This name is already taken. Please choose a different one.');
+      return;
+    }
+  
+    // ✅ Proceed with sign-up
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-          display_name: name,
+          display_name: name.trim(),
         },
       },
     });
@@ -77,11 +105,14 @@ export default function SignUp() {
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
-            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-invalid={nameError ? 'true' : 'false'}
+            className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              nameError ? 'border-red-500' : 'border-gray-300'
+            }`}
             required
           />
+          {nameError && <p className="mt-1 text-red-500 text-sm">{nameError}</p>}
         </div>
-
 
         {/* Email Field */}
         <div>
@@ -124,7 +155,7 @@ export default function SignUp() {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={!!emailError}
+          disabled={!!emailError || !!nameError}
           className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
         >
           Sign Up
