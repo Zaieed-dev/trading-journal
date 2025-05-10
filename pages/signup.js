@@ -5,7 +5,8 @@ import Link from 'next/link';
 
 export default function SignUp() {
   const router = useRouter();
-
+  
+  const [name, setName] = useState('');
   const [email, setEmail]         = useState('');
   const [emailError, setEmailError] = useState('');
   const [password, setPassword]   = useState('');
@@ -24,17 +25,23 @@ export default function SignUp() {
     e.preventDefault();
     setError('');
     setSuccess('');
-
+  
     if (!validateEmail(email)) {
       setEmailError('Please enter a valid email');
       return;
     }
-
-    // Attempt sign-up
-    const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
-
+  
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          display_name: name,
+        },
+      },
+    });
+  
     if (signUpError) {
-      // If Supabase throws a duplicate‑email error
       const msg = signUpError.message.toLowerCase();
       const exists = /already registered|duplicate|user already exists/.test(msg);
       if (exists) {
@@ -43,16 +50,14 @@ export default function SignUp() {
         setError(signUpError.message);
       }
     } else {
-      // No error — but must check for the "fake" user object case
-      // If identities is empty, Supabase is telling us the email already exists
       if (data.user?.identities?.length === 0) {
         setError('User already exists. Please log in instead.');
       } else {
-        // Truly a new user
         setSuccess('Sign‑up successful! Please check your email to confirm and then log in.');
       }
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
@@ -61,6 +66,22 @@ export default function SignUp() {
         className="w-full max-w-sm bg-white p-6 rounded-lg shadow-md space-y-6"
       >
         <h2 className="text-2xl font-bold text-center">Sign Up</h2>
+
+        {/* Name Field */}
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium mb-1">
+            Name
+          </label>
+          <input
+            id="name"
+            type="text"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
 
         {/* Email Field */}
         <div>
