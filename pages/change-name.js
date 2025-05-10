@@ -70,7 +70,7 @@ function ChangeName() {
   const gotoJournal = () => router.push('/journal-trade');
   const gotoStats = () => router.push('/statistics');
   const gotoChangePassword = () => router.push('/change-password');
-  const gotoChangeName = () => router.push('/change-name');
+  const gotoChangeName = () => {};
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
