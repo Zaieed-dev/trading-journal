@@ -44,6 +44,7 @@ import withAuth from '../utils/withAuth';
   const gotoChangePassword= () => router.push('/change-password');
   const gotoJournal       = () => router.push('/journal-trade');
   const gotoStats = () => router.push('/statistics');
+  const gotoChangeName = () => router.push('/change-name');
   const gotoDashboard = () => {};
 
 
@@ -106,6 +107,7 @@ import withAuth from '../utils/withAuth';
                 <button onClick={gotoStats} className="w-full px-4 py-2 hover:bg-gray-100">Statistics</button>
                 <button onClick={gotoJournal} className="w-full px-4 py-2 hover:bg-gray-100">Journal Trade</button>
                 <button onClick={gotoChangePassword} className="w-full px-4 py-2 hover:bg-gray-100">Change Password</button>
+                <button onClick={gotoChangeName} className="w-full px-4 py-2 hover:bg-gray-100">Change Name</button>
                 <button onClick={logout} className="w-full px-4 py-2 hover:bg-gray-100">Logout</button>
               </div>
             )}
