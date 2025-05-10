@@ -17,7 +17,11 @@ import withAuth from '../utils/withAuth';
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return router.replace('/');
-      setUser(session.user);
+      setUser({
+        ...session.user,
+        display_name: session.user.user_metadata?.display_name || '',
+      });
+      
 
       const { data, error } = await supabase
         .from('trades')
@@ -91,7 +95,7 @@ import withAuth from '../utils/withAuth';
       {/* Navbar */}
       <header className="bg-white shadow sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-blue-600">Trading Journal</h1>
+        <h1 className="text-2xl font-semibold text-blue-600">{user?.display_name ? `${user.display_name}'s Journal` : 'Trading Journal'}</h1>
           <div className="relative">
             <button onClick={() => setMenuOpen(!menuOpen)}
               className="p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
